@@ -1,22 +1,30 @@
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVC
 import joblib
-import yaml
 
-def load_model_and_predict():
-    with open("config.yaml", "r") as f:
-        config = yaml.safe_load(f)
+# Load data
+df = pd.read_csv("parkinson.csv")
 
-    model_file = config["path"]
-    features = config["features"]
+features = ["spread1", "PPE"]
+X = df[features]
+y = df["status"]
 
-    model = joblib.load(model_file)
+# Split
+X_train, X_val, y_train, y_val = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
 
-    df = pd.read_csv("parkinson.csv")
+# Pipeline !!!
+model = Pipeline([
+    ("scaler", MinMaxScaler()),
+    ("svc", SVC(kernel="rbf", C=10, gamma="scale"))
+])
 
-    X = df[features]
-    predictions = model.predict(X)
+# Train
+model.fit(X_train, y_train)
 
-    return predictions
-
-if __name__ == "__main__":
-    load_model_and_predict()
+# Save
+joblib.dump(model, "parkinson_model.joblib")
