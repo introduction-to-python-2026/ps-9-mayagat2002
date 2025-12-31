@@ -1,7 +1,4 @@
-path: parkinsons_model.joblib
-features:
-- spread1
-- PPE
-
-
-
+selected_features:
+  - MDVP:Fo(Hz)
+  - MDVP:Jitter(%)
+path: "parkinson_model.joblib"
