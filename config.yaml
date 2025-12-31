@@ -1,4 +1,4 @@
-path: parkinsons_model.joblib
+path: my_model.joblib
 features:
 - spread1
 - PPE
