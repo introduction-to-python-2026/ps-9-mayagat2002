@@ -1,29 +1,20 @@
 import pandas as pd
 import joblib
-import yaml
-import os
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.svm import SVC
 
-def load_model_and_predict():
-with open("config.yaml", "r") as f:
-config = yaml.safe_load(f)
+df = pd.read_csv("parkinson.csv")
 
-model_file = config["path"]
-selected_features = config["selected_features"]
+features = ["MDVP:Fo(Hz)", "MDVP:Jitter(%)"]
+X = df[features]
+y = df["status"]
 
-model = joblib.load(model_file)
-scaler = joblib.load("scaler.joblib")
+model = Pipeline([
+    ("scaler", MinMaxScaler()),
+    ("svc", SVC(C=10))
+])
 
-df = pd.read_csv("parkinsons.csv")
+model.fit(X, y)
 
-X = df[selected_features]
-X_scaled = scaler.transform(X)
-y_true = df["status"]
-predictions = model.predict(X_scaled)
-
-from sklearn.metrics import accuracy_score
-accuracy = accuracy_score(y_true, predictions)
-
-return predictions
-
-if __name__ == "__main__":
-load_model_and_predict()
+joblib.dump(model, "parkinson_model.joblib")
