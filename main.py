@@ -1,35 +1,29 @@
 import pandas as pd
 import joblib
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
+import yaml
+import os
+
+def load_model_and_predict():
+with open("config.yaml", "r") as f:
+config = yaml.safe_load(f)
+
+model_file = config["path"]
+selected_features = config["selected_features"]
+
+model = joblib.load(model_file)
+scaler = joblib.load("scaler.joblib")
+
+df = pd.read_csv("parkinsons.csv")
+
+X = df[selected_features]
+X_scaled = scaler.transform(X)
+y_true = df["status"]
+predictions = model.predict(X_scaled)
+
 from sklearn.metrics import accuracy_score
+accuracy = accuracy_score(y_true, predictions)
 
-# Load data
-df = pd.read_csv("parkinson.csv")
+return predictions
 
-# Select features and target
-X = df[["MDVP:Fo(Hz)", "MDVP:Jitter(%)"]]
-y = df["status"]
-
-# Scale features
-scaler = MinMaxScaler()
-X_scaled = scaler.fit_transform(X)
-
-# Split data
-X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, y, test_size=0.2, random_state=42
-)
-
-# Train model
-model = SVC(kernel="rbf", C=10, gamma="scale")
-model.fit(X_train, y_train)
-
-# Evaluate
-y_pred = model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-print("Model accuracy:", accuracy)
-
-# Save model
-joblib.dump(model, "parkinson_model.joblib")
-
+if __name__ == "__main__":
+load_model_and_predict()
