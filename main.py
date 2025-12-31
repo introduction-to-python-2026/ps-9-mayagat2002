@@ -3,6 +3,8 @@ import joblib
 import yaml
 import os
 
+
+
 def load_model_and_predict():
 with open("config.yaml", "r") as f:
 config = yaml.safe_load(f)
